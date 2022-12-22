@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import MessageHelper from "../helpers/MessageHelper";
 import passwordValidator from "password-validator";
 import * as EmailValidator from 'email-validator';
+import { comparePassword, hashPassword } from "../helpers/PasswordHelper";
 
 const maxAge = 7 * 24 * 60 * 60 * 1000;
 
@@ -24,12 +25,14 @@ const authControllers = {
         const {displayName, email, profession, research_location, password} = req.body;
         const user_id = uuidv4();
         
+        const hashedPassword = await hashPassword(password);
+
         const pswdSchema = new passwordValidator();
         
         pswdSchema.is().min(8);
         pswdSchema.has().uppercase().lowercase().digits(2);
         
-        const query = `INSERT INTO users VALUES ("${user_id}", "${displayName}", "${email}", "${profession}", "${research_location}", "${password}")`;
+        const query = `INSERT INTO users VALUES ("${user_id}", "${displayName}", "${email}", "${profession}", "${research_location}", "${hashedPassword}")`;
         
         if (!displayName || !email || !profession || !research_location || !password) {
             res.status(400).send({
@@ -37,7 +40,8 @@ const authControllers = {
             });
         }
         
-        // NOTES Found valid regex
+
+        //TODO: displayName eq firstname + lastname
         if (displayName.length < 5) {
             res.status(400).send({
                 message: MessageHelper.length_error
@@ -74,12 +78,13 @@ const authControllers = {
 
     login: async (req: Request, res: Response) => {
         const { email, password } = req.body;
+
         const query = `SELECT * from users WHERE (email = "${email}") AND (password = "${password}")`;
       
         try {
           const [user, _] = await db.execute(query);
           const token = createToken(user[0]);
-          res.cookie("jwt", token, { httpOnly: true, maxAge });
+          res.cookie("fq-jwt", token, { httpOnly: true, maxAge });
           res.status(200).send(user[0]);
         } catch (err) {
             res.status(400).send({

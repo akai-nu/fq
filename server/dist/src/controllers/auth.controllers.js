@@ -41,6 +41,7 @@ const uuid_1 = require("uuid");
 const MessageHelper_1 = __importDefault(require("../helpers/MessageHelper"));
 const password_validator_1 = __importDefault(require("password-validator"));
 const EmailValidator = __importStar(require("email-validator"));
+const PasswordHelper_1 = require("../helpers/PasswordHelper");
 const maxAge = 7 * 24 * 60 * 60 * 1000;
 const createToken = (user) => {
     return jsonwebtoken_1.default.sign({
@@ -51,16 +52,17 @@ const authControllers = {
     signUp: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { displayName, email, profession, research_location, password } = req.body;
         const user_id = (0, uuid_1.v4)();
+        const hashedPassword = yield (0, PasswordHelper_1.hashPassword)(password);
         const pswdSchema = new password_validator_1.default();
         pswdSchema.is().min(8);
         pswdSchema.has().uppercase().lowercase().digits(2);
-        const query = `INSERT INTO users VALUES ("${user_id}", "${displayName}", "${email}", "${profession}", "${research_location}", "${password}")`;
+        const query = `INSERT INTO users VALUES ("${user_id}", "${displayName}", "${email}", "${profession}", "${research_location}", "${hashedPassword}")`;
         if (!displayName || !email || !profession || !research_location || !password) {
             res.status(400).send({
                 message: MessageHelper_1.default.empty_fields
             });
         }
-        // NOTES Found valid regex
+        //TODO: displayName eq firstname + lastname
         if (displayName.length < 5) {
             res.status(400).send({
                 message: MessageHelper_1.default.length_error
@@ -94,7 +96,7 @@ const authControllers = {
         try {
             const [user, _] = yield db_1.default.execute(query);
             const token = createToken(user[0]);
-            res.cookie("jwt", token, { httpOnly: true, maxAge });
+            res.cookie("fq-jwt", token, { httpOnly: true, maxAge });
             res.status(200).send(user[0]);
         }
         catch (err) {

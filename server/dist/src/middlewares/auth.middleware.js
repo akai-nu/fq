@@ -28,6 +28,7 @@ const authMiddleware = {
                     next();
                 }
                 else {
+                    console.log('~> decoded', decodedToken);
                     let query = `SELECT * FROM users WHERE user_id = "${decodedToken.user.user_id}"`;
                     let user = yield db_1.default.execute(query);
                     res.locals.user = user;
