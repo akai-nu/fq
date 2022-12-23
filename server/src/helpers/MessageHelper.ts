@@ -5,6 +5,7 @@ const MessageHelper = {
     "email_error": "Please enter a valid E-mail!",
     "password_error": "<header>Password must be at:</header><ul><li>Least 8 characters long</li><li>Contain at least 2 digits/li><li>Least 1 uppercase and lowercase letter</li></ul>",
     "login_error": "Invalid credentials!",
+    "success": "success",
 }
 
 export default MessageHelper;

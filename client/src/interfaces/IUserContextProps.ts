@@ -1,5 +1,7 @@
 export interface IUserContextProps {
     loggedUser: IUser | null;
+    formError: string | null;
+    handleLogin: (values: {email: string, password: string}) => void;
 };
 
 export interface IUser {
@@ -9,4 +11,9 @@ export interface IUser {
     profession: string;
     research_location: string;
     password: string;
-}
+};
+
+export interface ILoginResponseObject {
+    values: string | null;
+    message: string;
+};

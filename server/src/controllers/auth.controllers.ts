@@ -68,6 +68,7 @@ const authControllers = {
 
         if (!email || !password) {
             res.status(400).send({
+                values: null,
                 message: MessageHelper.login_error
             });
         } else {
@@ -76,6 +77,7 @@ const authControllers = {
 
                 if (!user[0]) {
                     res.status(400).send({
+                        values: null,
                         message: MessageHelper.login_error
                     });
                 } else {
@@ -83,16 +85,21 @@ const authControllers = {
     
                     if (!isPasswordMatch) {
                         res.status(400).send({
+                            values: null,
                             message: MessageHelper.login_error
                         });
                     } else {
                         const token = createToken(user[0]);
-                        res.cookie("fq-jwt", token, { httpOnly: true, maxAge });
-                        res.status(200).send(user[0]);
+
+                        res.status(200).send({
+                            values: token,
+                            message: MessageHelper.success
+                        });
                     }
                 }
             } catch (err) {
                 res.status(400).send({
+                    values: null,
                     message: err.message
                 });
             }

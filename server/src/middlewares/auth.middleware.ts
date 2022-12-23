@@ -1,13 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import * as EmailValidator from 'email-validator';
-import passwordValidator from "password-validator";
 import db from "../config/db";
-
-const pswdSchema = new passwordValidator();
-
-pswdSchema.is().min(8);
-pswdSchema.has().uppercase().lowercase().digits(2);
 
 const authMiddleware = {
     checkUser: (req: Request, res: Response, next: NextFunction) => {
